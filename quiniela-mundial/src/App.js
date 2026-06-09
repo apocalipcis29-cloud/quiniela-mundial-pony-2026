@@ -41,22 +41,22 @@ const GRUPOS_OFICIALES = {
     {a:"Turquía",b:"USA",fecha:"25 jun"},{a:"Paraguay",b:"Australia",fecha:"25 jun"},
   ]},
   E:{ partidos:[
-    {a:"Costa de Marfil",b:"Ecuador",fecha:"14 jun"},{a:"Alemania",b:"Curazao",fecha:"14 jun"},
+    {a:"Alemania",b:"Curazao",fecha:"14 jun"},{a:"Costa de Marfil",b:"Ecuador",fecha:"14 jun"},
     {a:"Alemania",b:"Costa de Marfil",fecha:"20 jun"},{a:"Ecuador",b:"Curazao",fecha:"20 jun"},
     {a:"Curazao",b:"Costa de Marfil",fecha:"25 jun"},{a:"Ecuador",b:"Alemania",fecha:"25 jun"},
   ]},
   F:{ partidos:[
-    {a:"Países Bajos",b:"Japón",fecha:"14 jun"},{a:"Suecia",b:"Túnez",fecha:"14 jun"},
-    {a:"Países Bajos",b:"Suecia",fecha:"20 jun"},{a:"Túnez",b:"Japón",fecha:"21 jun"},
+    {a:"Países Bajos",b:"Japón",fecha:"14 jun"},{a:"Suecia",b:"Túnez",fecha:"12 jun"},
+    {a:"Países Bajos",b:"Suecia",fecha:"20 jun"},{a:"Túnez",b:"Japón",fecha:"20 jun"},
     {a:"Japón",b:"Suecia",fecha:"25 jun"},{a:"Túnez",b:"Países Bajos",fecha:"25 jun"},
   ]},
   G:{ partidos:[
-    {a:"Bélgica",b:"Irán",fecha:"15 jun"},{a:"Egipto",b:"Nueva Zelanda",fecha:"15 jun"},
-    {a:"Bélgica",b:"Egipto",fecha:"20 jun"},{a:"Irán",b:"Nueva Zelanda",fecha:"20 jun"},
-    {a:"Egipto",b:"Irán",fecha:"26 jun"},{a:"Nueva Zelanda",b:"Bélgica",fecha:"26 jun"},
+    {a:"Bélgica",b:"Egipto",fecha:"15 jun"},{a:"Irán",b:"Nueva Zelanda",fecha:"15 jun"},
+    {a:"Bélgica",b:"Irán",fecha:"21 jun"},{a:"Nueva Zelanda",b:"Egipto",fecha:"20 jun"},
+    {a:"Nueva Zelanda",b:"Bélgica",fecha:"26 jun"},{a:"Egipto",b:"Irán",fecha:"26 jun"},
   ]},
   H:{ partidos:[
-    {a:"Arabia Saudita",b:"Uruguay",fecha:"11 jun"},{a:"España",b:"Cabo Verde",fecha:"15 jun"},
+    {a:"Arabia Saudita",b:"Uruguay",fecha:"15 jun"},{a:"España",b:"Cabo Verde",fecha:"15 jun"},
     {a:"España",b:"Uruguay",fecha:"20 jun"},{a:"Cabo Verde",b:"Arabia Saudita",fecha:"21 jun"},
     {a:"España",b:"Arabia Saudita",fecha:"25 jun"},{a:"Uruguay",b:"Cabo Verde",fecha:"25 jun"},
   ]},
@@ -68,7 +68,7 @@ const GRUPOS_OFICIALES = {
   J:{ partidos:[
     {a:"Argentina",b:"Argelia",fecha:"16 jun"},{a:"Austria",b:"Jordania",fecha:"17 jun"},
     {a:"Argentina",b:"Jordania",fecha:"22 jun"},{a:"Argelia",b:"Austria",fecha:"22 jun"},
-    {a:"Argelia",b:"Jordania",fecha:"26 jun"},{a:"Austria",b:"Argentina",fecha:"26 jun"},
+    {a:"Jordania",b:"Argelia",fecha:"26 jun"},{a:"Austria",b:"Argentina",fecha:"26 jun"},
   ]},
   K:{ partidos:[
     {a:"Portugal",b:"RD Congo",fecha:"17 jun"},{a:"Colombia",b:"Uzbekistán",fecha:"17 jun"},
