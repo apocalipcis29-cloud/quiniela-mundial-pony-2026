@@ -41,22 +41,22 @@ const GRUPOS_OFICIALES = {
     {a:"Turquía",b:"USA",fecha:"25 jun"},{a:"Paraguay",b:"Australia",fecha:"25 jun"},
   ]},
   E:{ partidos:[
-    {a:"Alemania",b:"Curazao",fecha:"14 jun"},{a:"Costa de Marfil",b:"Ecuador",fecha:"14 jun"},
+    {a:"Costa de Marfil",b:"Ecuador",fecha:"14 jun"},{a:"Alemania",b:"Curazao",fecha:"14 jun"},
     {a:"Alemania",b:"Costa de Marfil",fecha:"20 jun"},{a:"Ecuador",b:"Curazao",fecha:"20 jun"},
     {a:"Curazao",b:"Costa de Marfil",fecha:"25 jun"},{a:"Ecuador",b:"Alemania",fecha:"25 jun"},
   ]},
   F:{ partidos:[
-    {a:"Países Bajos",b:"Japón",fecha:"14 jun"},{a:"Suecia",b:"Túnez",fecha:"12 jun"},
-    {a:"Países Bajos",b:"Suecia",fecha:"20 jun"},{a:"Túnez",b:"Japón",fecha:"20 jun"},
+    {a:"Países Bajos",b:"Japón",fecha:"14 jun"},{a:"Suecia",b:"Túnez",fecha:"14 jun"},
+    {a:"Países Bajos",b:"Suecia",fecha:"20 jun"},{a:"Túnez",b:"Japón",fecha:"21 jun"},
     {a:"Japón",b:"Suecia",fecha:"25 jun"},{a:"Túnez",b:"Países Bajos",fecha:"25 jun"},
   ]},
   G:{ partidos:[
-    {a:"Bélgica",b:"Egipto",fecha:"15 jun"},{a:"Irán",b:"Nueva Zelanda",fecha:"15 jun"},
-    {a:"Bélgica",b:"Irán",fecha:"21 jun"},{a:"Nueva Zelanda",b:"Egipto",fecha:"20 jun"},
-    {a:"Nueva Zelanda",b:"Bélgica",fecha:"26 jun"},{a:"Egipto",b:"Irán",fecha:"26 jun"},
+    {a:"Bélgica",b:"Irán",fecha:"15 jun"},{a:"Egipto",b:"Nueva Zelanda",fecha:"15 jun"},
+    {a:"Bélgica",b:"Egipto",fecha:"20 jun"},{a:"Irán",b:"Nueva Zelanda",fecha:"20 jun"},
+    {a:"Egipto",b:"Irán",fecha:"26 jun"},{a:"Nueva Zelanda",b:"Bélgica",fecha:"26 jun"},
   ]},
   H:{ partidos:[
-    {a:"Arabia Saudita",b:"Uruguay",fecha:"15 jun"},{a:"España",b:"Cabo Verde",fecha:"15 jun"},
+    {a:"Arabia Saudita",b:"Uruguay",fecha:"11 jun"},{a:"España",b:"Cabo Verde",fecha:"15 jun"},
     {a:"España",b:"Uruguay",fecha:"20 jun"},{a:"Cabo Verde",b:"Arabia Saudita",fecha:"21 jun"},
     {a:"España",b:"Arabia Saudita",fecha:"25 jun"},{a:"Uruguay",b:"Cabo Verde",fecha:"25 jun"},
   ]},
@@ -68,7 +68,7 @@ const GRUPOS_OFICIALES = {
   J:{ partidos:[
     {a:"Argentina",b:"Argelia",fecha:"16 jun"},{a:"Austria",b:"Jordania",fecha:"17 jun"},
     {a:"Argentina",b:"Jordania",fecha:"22 jun"},{a:"Argelia",b:"Austria",fecha:"22 jun"},
-    {a:"Jordania",b:"Argelia",fecha:"26 jun"},{a:"Austria",b:"Argentina",fecha:"26 jun"},
+    {a:"Argelia",b:"Jordania",fecha:"26 jun"},{a:"Austria",b:"Argentina",fecha:"26 jun"},
   ]},
   K:{ partidos:[
     {a:"Portugal",b:"RD Congo",fecha:"17 jun"},{a:"Colombia",b:"Uzbekistán",fecha:"17 jun"},
@@ -122,6 +122,12 @@ export default function App() {
   const [syncStatus, setSyncStatus] = useState("idle");
   // Vista de predicciones de otros (solo cuando jornada cerrada)
   const [viendoParticipante, setViendoParticipante] = useState(null);
+  const [passInput, setPassInput] = useState("");
+  const [passError, setPassError] = useState(false);
+  const [participanteSeleccionado, setParticipanteSeleccionado] = useState(null);
+  const [creandoPass, setCreandoPass] = useState(false);
+  const [passNueva, setPassNueva] = useState("");
+  const [passNuevaConfirm, setPassNuevaConfirm] = useState("");
 
   const notify = (msg, tipo="ok") => {
     setNotification({msg,tipo});
@@ -204,10 +210,53 @@ export default function App() {
     if(participantes.find((p)=>p.nombre.toLowerCase()===nuevoNombre.toLowerCase())){
       notify("Ese nombre ya existe","error"); return;
     }
-    const nuevos=[...participantes,{id:Date.now(),nombre:nuevoNombre.trim(),predicciones:{}}];
+    const nuevos=[...participantes,{id:Date.now(),nombre:nuevoNombre.trim(),predicciones:{},pass:""}];
     setNuevoNombre("");
     notify(`¡${nuevoNombre} agregado!`);
     await guardar("participantes",nuevos);
+  };
+
+  // Seleccionar participante → verificar si tiene pass
+  const seleccionarParticipante = (p) => {
+    setParticipanteSeleccionado(p.id);
+    setPassInput("");
+    setPassError(false);
+    if(!p.pass){
+      setCreandoPass(true); // sin contraseña → crear una
+    } else {
+      setCreandoPass(false); // tiene contraseña → pedir
+    }
+  };
+
+  // Verificar contraseña ingresada
+  const verificarPass = () => {
+    const p = participantes.find((x)=>x.id===participanteSeleccionado);
+    if(passInput === p.pass){
+      setParticipanteActivo(participanteSeleccionado);
+      setParticipanteSeleccionado(null);
+      setPassInput("");
+      setPassError(false);
+    } else {
+      setPassError(true);
+      setTimeout(()=>setPassError(false), 2000);
+    }
+  };
+
+  // Crear contraseña nueva
+  const crearPass = async () => {
+    if(!passNueva.trim()){ notify("Escribe una contraseña","error"); return; }
+    if(passNueva !== passNuevaConfirm){ notify("Las contraseñas no coinciden","error"); return; }
+    if(passNueva.length < 4){ notify("Mínimo 4 caracteres","error"); return; }
+    const nuevos = participantes.map((p)=>
+      p.id===participanteSeleccionado ? {...p, pass:passNueva} : p
+    );
+    await guardar("participantes", nuevos);
+    setParticipanteActivo(participanteSeleccionado);
+    setParticipanteSeleccionado(null);
+    setPassNueva("");
+    setPassNuevaConfirm("");
+    setCreandoPass(false);
+    notify("✓ Contraseña creada");
   };
 
   const setPrediccion = async (pId,matchId,val) => {
@@ -227,6 +276,21 @@ export default function App() {
     const nuevosRes={...resultados,[partidoId]:val};
     await guardar("resultados",nuevosRes);
     notify("✓ Resultado guardado");
+  };
+
+  const borrarResultado = async (partidoId) => {
+    const nuevosRes={...resultados};
+    delete nuevosRes[partidoId];
+    await guardar("resultados",nuevosRes);
+    notify("🗑️ Resultado eliminado");
+  };
+
+  const borrarResultadosJornada = async (jornada) => {
+    const ids=PARTIDOS.filter((p)=>p.jornada===jornada).map((p)=>p.id);
+    const nuevosRes={...resultados};
+    ids.forEach((id)=>delete nuevosRes[id]);
+    await guardar("resultados",nuevosRes);
+    notify(`🗑️ Resultados de J${jornada} eliminados`);
   };
 
   const partidosFiltrados=PARTIDOS.filter((p)=>{
@@ -292,12 +356,12 @@ export default function App() {
         {!adminOk?(
           <div style={s.card}>
             <h3 style={s.cardTitle}>🔐 Acceso Admin</h3>
-            <p style={{color:"#aaa",fontSize:13,marginBottom:12}}>Contraseña: <b style={{color:"#FFD700"}}>quiniela2026</b></p>
+            <p style={{color:"#aaa",fontSize:13,marginBottom:12}}>Ingresa la contraseña de administrador</p>
             <input style={s.input} type="password" placeholder="Contraseña..." value={adminPass}
               onChange={(e)=>setAdminPass(e.target.value)}
-              onKeyDown={(e)=>e.key==="Enter"&&adminPass==="quiniela2026"&&setAdminOk(true)}/>
+              onKeyDown={(e)=>e.key==="Enter"&&adminPass==="Starlord#2026"&&setAdminOk(true)}/>
             <button style={{...s.btn,...s.btnGold,width:"100%",marginTop:10,justifyContent:"center"}}
-              onClick={()=>adminPass==="quiniela2026"?setAdminOk(true):notify("Contraseña incorrecta","error")}>
+              onClick={()=>adminPass==="Starlord#2026"?setAdminOk(true):notify("Contraseña incorrecta","error")}>
               Entrar
             </button>
           </div>
@@ -312,16 +376,33 @@ export default function App() {
                   onKeyDown={(e)=>e.key==="Enter"&&agregarParticipante()}/>
                 <button style={{...s.btn,...s.btnGold}} onClick={agregarParticipante}>+ Agregar</button>
               </div>
-              <div style={s.chipRow}>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 {participantes.map((p)=>(
-                  <div key={p.id} style={s.chipDel}>
-                    <span>{p.nombre}</span>
-                    {participantes.length>1&&(
-                      <button style={s.delBtn} onClick={async()=>{
-                        const nuevos=participantes.filter((x)=>x.id!==p.id);
-                        await guardar("participantes",nuevos);
-                      }}>×</button>
-                    )}
+                  <div key={p.id} style={{...s.chipDel,borderRadius:10,padding:"8px 12px",justifyContent:"space-between"}}>
+                    <span style={{fontWeight:600}}>{p.nombre}</span>
+                    <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                      <span style={{fontSize:11,color:p.pass?"#4CAF50":"#e74c3c"}}>
+                        {p.pass?"🔐 con pass":"⚪ sin pass"}
+                      </span>
+                      {p.pass&&(
+                        <button style={{background:"rgba(255,165,0,0.15)",border:"1px solid #FFA500",color:"#FFA500",borderRadius:6,padding:"2px 8px",fontSize:10,cursor:"pointer",fontWeight:700}}
+                          onClick={async()=>{
+                            if(window.confirm(`¿Resetear contraseña de ${p.nombre}? La próxima vez que entre deberá crear una nueva.`)){
+                              const nuevos=participantes.map((x)=>x.id===p.id?{...x,pass:""}:x);
+                              await guardar("participantes",nuevos);
+                              notify(`🔓 Contraseña de ${p.nombre} reseteada`);
+                            }
+                          }}>
+                          Reset pass
+                        </button>
+                      )}
+                      {participantes.length>1&&(
+                        <button style={s.delBtn} onClick={async()=>{
+                          const nuevos=participantes.filter((x)=>x.id!==p.id);
+                          await guardar("participantes",nuevos);
+                        }}>×</button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -394,15 +475,28 @@ export default function App() {
                   {gruposKeys.map((g)=><button key={g} style={{...s.grupoTab,...(grupoFiltro===g?s.grupoTabActive:{})}} onClick={()=>setGrupoFiltro(g)}>Gpo {g}</button>)}
                 </div>
               )}
-              <h4 style={{color:"#FFD700",margin:"10px 0 6px",fontSize:13}}>
-                {JORNADA_LABELS_FULL[jornadaActiva]}{grupoFiltro!=="TODOS"?` · Grupo ${grupoFiltro}`:""}
-                <span style={{color:"#555",fontWeight:400}}> ({partidosFiltrados.length} partidos)</span>
-              </h4>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",margin:"10px 0 6px"}}>
+                <h4 style={{color:"#FFD700",fontSize:13,margin:0}}>
+                  {JORNADA_LABELS_FULL[jornadaActiva]}{grupoFiltro!=="TODOS"?` · Grupo ${grupoFiltro}`:""}
+                  <span style={{color:"#555",fontWeight:400}}> ({partidosFiltrados.length} partidos)</span>
+                </h4>
+                {PARTIDOS.filter((p)=>p.jornada===jornadaActiva&&resultados[p.id]).length>0&&(
+                  <button
+                    style={{...s.btn,background:"rgba(231,76,60,0.15)",border:"1px solid #e74c3c",color:"#e74c3c",padding:"5px 10px",fontSize:11,borderRadius:8}}
+                    onClick={()=>{
+                      if(window.confirm(`¿Borrar TODOS los resultados de la Jornada ${jornadaActiva}?`))
+                        borrarResultadosJornada(jornadaActiva);
+                    }}>
+                    🗑️ Borrar J{jornadaActiva}
+                  </button>
+                )}
+              </div>
               <div style={s.partidosList}>
                 {partidosFiltrados.map((partido)=>(
                   <PartidoAdmin key={partido.id} partido={partido}
                     resultado={resultados[partido.id]}
-                    onResultado={(v)=>setResultado(partido.id,v)}/>
+                    onResultado={(v)=>setResultado(partido.id,v)}
+                    onBorrar={()=>borrarResultado(partido.id)}/>
                 ))}
               </div>
             </div>
@@ -466,24 +560,82 @@ export default function App() {
   // ── PREDICCIONES ───────────────────────────────────────────────────────────
   if(pantalla==="participante") return(
     <div style={s.root}>
-      <TopBar titulo="🎯 Predicciones" syncStatus={syncStatus} onBack={()=>{setPantalla("inicio");setParticipanteActivo(null);setViendoParticipante(null);}}/>
+      <TopBar titulo="🎯 Predicciones" syncStatus={syncStatus} onBack={()=>{setPantalla("inicio");setParticipanteActivo(null);setViendoParticipante(null);setParticipanteSeleccionado(null);}}/>
       <div style={s.content}>
         {!participanteActivo?(
           <div style={s.card}>
-            <h3 style={s.cardTitle}>¿Quién eres?</h3>
-            {participantes.length===0?(
-              <p style={{color:"#555",fontSize:13,textAlign:"center",padding:"16px 0"}}>El admin aún no ha agregado participantes.</p>
-            ):(
-              <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {participantes.map((p)=>(
-                  <button key={p.id} style={{...s.btn,...s.btnOutline}} onClick={()=>setParticipanteActivo(p.id)}>
-                    👤 {p.nombre}
-                    <span style={{marginLeft:"auto",color:"#aaa",fontSize:12}}>
-                      {Object.keys(p.predicciones).length}/{PARTIDOS.length} pred · <b style={{color:"#FFD700"}}>{calcularPuntos(p.predicciones)}pts</b>
-                    </span>
+            {/* Paso 1: elegir nombre */}
+            {!participanteSeleccionado?(
+              <>
+                <h3 style={s.cardTitle}>¿Quién eres?</h3>
+                {participantes.length===0?(
+                  <p style={{color:"#555",fontSize:13,textAlign:"center",padding:"16px 0"}}>El admin aún no ha agregado participantes.</p>
+                ):(
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    {participantes.map((p)=>(
+                      <button key={p.id} style={{...s.btn,...s.btnOutline}} onClick={()=>seleccionarParticipante(p)}>
+                        👤 {p.nombre}
+                        <span style={{marginLeft:"auto",color:"#aaa",fontSize:12}}>
+                          {p.pass ? "🔐" : "⚪ sin contraseña"} · <b style={{color:"#FFD700"}}>{calcularPuntos(p.predicciones)}pts</b>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : creandoPass ? (
+              /* Paso 2a: crear contraseña nueva */
+              <>
+                <h3 style={s.cardTitle}>🔐 Crea tu contraseña</h3>
+                <p style={{color:"#aaa",fontSize:13,marginBottom:14,lineHeight:1.5}}>
+                  Es la primera vez que entras. Crea una contraseña personal para proteger tus predicciones.
+                </p>
+                <input style={{...s.input,marginBottom:10}} type="password"
+                  placeholder="Nueva contraseña (mín. 4 caracteres)"
+                  value={passNueva} onChange={(e)=>setPassNueva(e.target.value)}/>
+                <input style={{...s.input,marginBottom:14}} type="password"
+                  placeholder="Confirma tu contraseña"
+                  value={passNuevaConfirm} onChange={(e)=>setPassNuevaConfirm(e.target.value)}
+                  onKeyDown={(e)=>e.key==="Enter"&&crearPass()}/>
+                <div style={{display:"flex",gap:8}}>
+                  <button style={{...s.btn,...s.btnGray,flex:1,justifyContent:"center"}}
+                    onClick={()=>{setParticipanteSeleccionado(null);setPassNueva("");setPassNuevaConfirm("");}}>
+                    ← Volver
                   </button>
-                ))}
-              </div>
+                  <button style={{...s.btn,...s.btnGold,flex:2,justifyContent:"center"}} onClick={crearPass}>
+                    Crear contraseña ✓
+                  </button>
+                </div>
+                <p style={{color:"#555",fontSize:11,marginTop:10,textAlign:"center"}}>
+                  ⚠️ Guarda tu contraseña — no se puede recuperar
+                </p>
+              </>
+            ) : (
+              /* Paso 2b: ingresar contraseña existente */
+              <>
+                <h3 style={s.cardTitle}>🔐 Ingresa tu contraseña</h3>
+                <p style={{color:"#FFD700",fontWeight:700,fontSize:15,marginBottom:12}}>
+                  👤 {participantes.find((x)=>x.id===participanteSeleccionado)?.nombre}
+                </p>
+                <input
+                  style={{...s.input,marginBottom:10,borderColor:passError?"#e74c3c":"#2a3f55"}}
+                  type="password" placeholder="Tu contraseña..."
+                  value={passInput} onChange={(e)=>{setPassInput(e.target.value);setPassError(false);}}
+                  onKeyDown={(e)=>e.key==="Enter"&&verificarPass()}
+                  autoFocus/>
+                {passError&&(
+                  <p style={{color:"#e74c3c",fontSize:12,marginBottom:8}}>❌ Contraseña incorrecta</p>
+                )}
+                <div style={{display:"flex",gap:8}}>
+                  <button style={{...s.btn,...s.btnGray,flex:1,justifyContent:"center"}}
+                    onClick={()=>{setParticipanteSeleccionado(null);setPassInput("");}}>
+                    ← Volver
+                  </button>
+                  <button style={{...s.btn,...s.btnGold,flex:2,justifyContent:"center"}} onClick={verificarPass}>
+                    Entrar →
+                  </button>
+                </div>
+              </>
             )}
           </div>
         ):(
@@ -758,15 +910,24 @@ function TopBar({titulo,onBack,syncStatus}){
   );
 }
 
-function PartidoAdmin({partido,resultado,onResultado}){
+function PartidoAdmin({partido,resultado,onResultado,onBorrar}){
   return(
     <div style={{...s.partidoCard,...(resultado?s.partidoCardDone:{})}}>
-      <span style={s.grupoTag}>
-        {partido.grupo?`Grupo ${partido.grupo} · `:""}
-        {partido.label||""}
-        {partido.fecha?` · ${partido.fecha}`:""}
-        {partido.empateValido?"":" · Sin empate"}
-      </span>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+        <span style={{...s.grupoTag,marginBottom:0}}>
+          {partido.grupo?`Grupo ${partido.grupo} · `:""}
+          {partido.label||""}
+          {partido.fecha?` · ${partido.fecha}`:""}
+          {partido.empateValido?"":" · Sin empate"}
+        </span>
+        {resultado&&(
+          <button
+            onClick={onBorrar}
+            style={{background:"rgba(231,76,60,0.15)",border:"1px solid #e74c3c",color:"#e74c3c",borderRadius:6,padding:"2px 8px",fontSize:10,cursor:"pointer",fontWeight:700,flexShrink:0}}>
+            🗑️ Quitar
+          </button>
+        )}
+      </div>
       <div style={s.vsRow}>
         <span style={s.teamName}>{F(partido.equipoA)} {partido.equipoA}</span>
         <span style={s.vsText}>VS</span>
