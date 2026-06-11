@@ -46,17 +46,17 @@ const GRUPOS_OFICIALES = {
     {a:"Curazao",b:"Costa de Marfil",fecha:"25 jun"},{a:"Ecuador",b:"Alemania",fecha:"25 jun"},
   ]},
   F:{ partidos:[
-    {a:"Países Bajos",b:"Japón",fecha:"14 jun"},{a:"Suecia",b:"Túnez",fecha:"14 jun"},
+    {a:"Países Bajos",b:"Japón",fecha:"14 jun"},{a:"Suecia",b:"Túnez",fecha:"12 jun"},
     {a:"Países Bajos",b:"Suecia",fecha:"20 jun"},{a:"Túnez",b:"Japón",fecha:"21 jun"},
     {a:"Japón",b:"Suecia",fecha:"25 jun"},{a:"Túnez",b:"Países Bajos",fecha:"25 jun"},
   ]},
   G:{ partidos:[
-    {a:"Bélgica",b:"Irán",fecha:"15 jun"},{a:"Egipto",b:"Nueva Zelanda",fecha:"15 jun"},
-    {a:"Bélgica",b:"Egipto",fecha:"20 jun"},{a:"Irán",b:"Nueva Zelanda",fecha:"20 jun"},
+    {a:"Bélgica",b:"Egipto",fecha:"15 jun"},{a:"Irán",b:"Nueva Zelanda",fecha:"15 jun"},
+    {a:"Bélgica",b:"Irán",fecha:"21 jun"},{a:"Nueva Zelanda",b:"Egipto",fecha:"20 jun"},
     {a:"Egipto",b:"Irán",fecha:"26 jun"},{a:"Nueva Zelanda",b:"Bélgica",fecha:"26 jun"},
   ]},
   H:{ partidos:[
-    {a:"Arabia Saudita",b:"Uruguay",fecha:"11 jun"},{a:"España",b:"Cabo Verde",fecha:"15 jun"},
+    {a:"Arabia Saudita",b:"Uruguay",fecha:"15 jun"},{a:"España",b:"Cabo Verde",fecha:"15 jun"},
     {a:"España",b:"Uruguay",fecha:"20 jun"},{a:"Cabo Verde",b:"Arabia Saudita",fecha:"21 jun"},
     {a:"España",b:"Arabia Saudita",fecha:"25 jun"},{a:"Uruguay",b:"Cabo Verde",fecha:"25 jun"},
   ]},
